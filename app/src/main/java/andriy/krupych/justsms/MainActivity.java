@@ -28,8 +28,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mMessageEditText = (EditText) findViewById(R.id.message);
-        loadSmsHistory();
+//        loadMessagesForThreadId(290);
+        ContentManager.logSmsTable(false, "+380637625200");
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -76,5 +78,54 @@ public class MainActivity extends AppCompatActivity {
     private void sendSms() {
         String message = mMessageEditText.getText().toString();
         SmsManager.getDefault().sendTextMessage("+380637467485", null, message, null, null);
+    }
+
+    private void showConversations() {
+        Uri uri = Uri.parse("content://sms/conversations/");
+        Cursor cursor = getContentResolver().query(uri, null, null, null, null);
+        if (cursor.getCount() > 0) {
+            String count = Integer.toString(cursor.getCount());
+            Log.d("qwerty", "threads number: " + count);
+            while (cursor.moveToNext()) {
+                String result = "";
+                for (int i = 0; i < cursor.getColumnCount(); i++) {
+                    result += cursor.getColumnName(i) + ": " + cursor.getString(i) + ", ";
+                }
+                Log.d("qwerty", result);
+            }
+        }
+        cursor.close();
+    }
+
+    private void loadMessagesForThreadId(int threadId) {
+        mSmsHistory = new ArrayList<>();
+        Uri uri = Uri.parse("content://sms");
+        Cursor cursor = getContentResolver().query(uri, null, "thread_id = " + threadId, null, null);
+        if (cursor.getCount() > 0) {
+            String count = Integer.toString(cursor.getCount());
+            Log.d("qwerty", "threads number: " + count);
+            while (cursor.moveToNext()) {
+                String result = "";
+                for (int i = 0; i < cursor.getColumnCount(); i++) {
+                    result += cursor.getColumnName(i) + ": " + cursor.getString(i) + ", ";
+                }
+                Log.d("qwerty", result);
+            }
+        }
+//        int addressColumnIndex = cursor.getColumnIndex("address");
+//        int bodyColumnIndex = cursor.getColumnIndex("body");
+//        int dateColumnIndex = cursor.getColumnIndex("date");
+//        if (cursor.moveToFirst()) {
+//            for (int i = 0; i < cursor.getCount(); i++) {
+//                SMS sms = new SMS();
+//                sms.address = cursor.getString(addressColumnIndex);
+//                sms.body = cursor.getString(bodyColumnIndex);
+//                sms.date = new DateTime(cursor.getLong(dateColumnIndex));
+//                Log.d(sms.address, sms.body);
+//                mSmsHistory.add(sms);
+//                cursor.moveToNext();
+//            }
+//        }
+        cursor.close();
     }
 }
